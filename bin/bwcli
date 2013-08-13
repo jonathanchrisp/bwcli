@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require 'bwapi'
+require 'bwcli'
+BWCLI::BW.start ARGV
