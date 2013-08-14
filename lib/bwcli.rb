@@ -17,7 +17,7 @@ module BWCLI
     desc "config", "User configuration"
     subcommand "config", Config
 
-    desc "me", "Project endpoints"
+    desc "me", "Me endpoint"
     subcommand "me", Me
 
     desc "projects", "Project endpoints"
