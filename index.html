@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Bwcli by jonathanchrisp</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Bwcli</h1>
+          <h2>A Ruby CLI to interact with the Brandwatch API</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/jonathanchrisp/bwcli/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/jonathanchrisp/bwcli/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/jonathanchrisp/bwcli" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <p><a href="http://badge.fury.io/rb/bwcli"><img src="https://badge.fury.io/rb/bwcli.png" alt="Gem Version"></a> 
+<a href="https://gemnasium.com/jonathanchrisp/bwcli"><img src="https://gemnasium.com/jonathanchrisp/bwcli.png" alt="Dependency Status"></a>
+<a href="https://codeclimate.com/github/jonathanchrisp/bwcli"><img src="https://codeclimate.com/github/jonathanchrisp/bwcli.png" alt="Code Climate"></a></p>
+
+<p><strong>PLEASE NOTE THAT THIS PROJECT IS NOT OFFICIALLY SUPPORTED BY BRANDWATCH</strong></p>
+
+<p>A command line interface to interact with the Brandwatch API</p>
+
+<h2>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h2>
+
+<p><a href="http://rubydoc.info/gems/bwcli/">http://rubydoc.info/gems/bwcli/</a></p>
+
+<h2>
+<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h2>
+
+<p>In order to interact with the <code>BWAPI</code> from the command line we first need to setup a current user in the <code>.bwcli</code> config file. Please note that the config file enables us to hold multiple users which we can easily switch between.</p>
+
+<h3>
+<a name="add-new-user-to-config" class="anchor" href="#add-new-user-to-config"><span class="octicon octicon-link"></span></a>Add new user to config</h3>
+
+<p>In order to use <code>bwcli</code> you need to have a <code>.bwcli</code> file in your root directory, don't worry I've got your back. When you create a new user the file will be created automatically. So, to get the show on the road add a user to your config file:</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">config</span> <span class="n">add</span> <span class="o">-</span><span class="n">u</span> <span class="n">username</span><span class="vi">@domain</span><span class="o">.</span><span class="n">com</span> <span class="o">-</span><span class="nb">p</span> <span class="n">your_password</span> <span class="o">-</span><span class="n">e</span> <span class="n">enviroment</span>
+</pre></div>
+
+<p>When you create a user for the first time <code>bwcli</code> will automatically set this user as your <code>current user</code>. When you add new users to your config, <code>bwcli</code> will ask whether you want to set this user as your current user.</p>
+
+<h3>
+<a name="view-user-config" class="anchor" href="#view-user-config"><span class="octicon octicon-link"></span></a>View user config</h3>
+
+<p>Returns the users currently stored in the config file along with the current user if set.</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">config</span> <span class="n">list</span>
+</pre></div>
+
+<h3>
+<a name="set-current-user" class="anchor" href="#set-current-user"><span class="octicon octicon-link"></span></a>Set current user</h3>
+
+<p>Sets the user as the current user. The <code>set</code> or <code>switch</code> command can be used.</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">config</span> <span class="n">set</span> <span class="o">-</span><span class="n">u</span> <span class="n">anotheruser</span><span class="vi">@domain</span> <span class="o">-</span><span class="n">e</span> <span class="n">environment</span>
+</pre></div>
+
+<h3>
+<a name="remove-user" class="anchor" href="#remove-user"><span class="octicon octicon-link"></span></a>Remove user</h3>
+
+<p>Removes the specific user from the config file, no warning is given.</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">config</span> <span class="n">remove</span> <span class="o">-</span><span class="n">u</span> <span class="n">anotheruser</span><span class="vi">@domain</span> <span class="o">-</span><span class="n">e</span> <span class="n">environment</span>
+</pre></div>
+
+<h3>
+<a name="view-current-user" class="anchor" href="#view-current-user"><span class="octicon octicon-link"></span></a>View current user</h3>
+
+<p>Returns the current user set in the config file.</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">config</span> <span class="n">user</span>
+</pre></div>
+
+<h3>
+<a name="authenticate-current-user" class="anchor" href="#authenticate-current-user"><span class="octicon octicon-link"></span></a>Authenticate current user</h3>
+
+<p>Please note that when ever you make a request to an endpoint <code>bwcli</code> will ensure you are authenticated with brandwatch so the login command doesn't need to run everytime.</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">config</span> <span class="n">login</span>
+</pre></div>
+
+<h3>
+<a name="reset-user-config" class="anchor" href="#reset-user-config"><span class="octicon octicon-link"></span></a>Reset user config</h3>
+
+<p>Wipe your config file and restart, warning is given and the user must respond with a <code>yes</code> or <code>y</code> to confirm.</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">config</span> <span class="n">reset</span>
+</pre></div>
+
+<h2>
+<a name="next-steps" class="anchor" href="#next-steps"><span class="octicon octicon-link"></span></a>Next Steps</h2>
+
+<p>Once you have your current user setup you can make API requests to Brandwatch. Currently at present only the <code>me</code> and <code>projects</code> endpoint are implemented.</p>
+
+<h3>
+<a name="me-endpoint" class="anchor" href="#me-endpoint"><span class="octicon octicon-link"></span></a>Me Endpoint</h3>
+
+<p>Returns user information.</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">me</span>
+</pre></div>
+
+<h3>
+<a name="all-projects" class="anchor" href="#all-projects"><span class="octicon octicon-link"></span></a>All Projects</h3>
+
+<p>Returns all projects the user currently has shared.</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">projects</span>
+</pre></div>
+
+<h3>
+<a name="specific-projects" class="anchor" href="#specific-projects"><span class="octicon octicon-link"></span></a>Specific Projects</h3>
+
+<p>Returns the specific project specified, user must pass option for <code>-i</code> parameter.</p>
+
+<div class="highlight"><pre><span class="n">bwcli</span> <span class="n">projects</span> <span class="o">-</span><span class="n">i</span> <span class="mi">12345678</span>
+</pre></div>
+
+<h2>
+<a name="feedback" class="anchor" href="#feedback"><span class="octicon octicon-link"></span></a>Feedback</h2>
+
+<p>I would be more than happy to recieve feedback, please email me at: <a href="mailto:jonathan.chrisp@gmail.com">jonathan.chrisp@gmail.com</a> or <a href="mailto:jonathan@brandwatch.com">jonathan@brandwatch.com</a></p>
+        </section>
+
+        <footer>
+          Bwcli is maintained by <a href="https://github.com/jonathanchrisp">jonathanchrisp</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+                  <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-38101452-13");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+      </div>
+    </div>
+  </body>
+</html>
