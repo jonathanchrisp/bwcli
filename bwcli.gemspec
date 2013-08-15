@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'bwcli'
   s.version     = '1.0.0'
-  s.date        = '2013-08-14'
+  s.date        = '2013-08-15'
   s.summary     = 'Brandwatch CLI'
   s.description = 'A CLI interface to interact with the Brandwatch v2 API'
   s.author      = 'Jonathan Chrisp'
@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'bwapi', '~> 1.0.0'
   s.add_runtime_dependency 'thor', '~> 0.18.1'
   s.add_runtime_dependency 'awesome_print', '~> 1.1.0'
+  s.add_runtime_dependency 'hashie', '~> 2.0.5'
 
   s.files         = `git ls-files`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
