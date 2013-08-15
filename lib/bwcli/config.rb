@@ -41,10 +41,10 @@ module BWCLI
       conf.set_current_user options[:e], options[:u] if yes? "Would you like set this user as the current user?"
     end
 
-    desc "switch", "Switch to user"
+    desc "set", "Set the current user"
     method_option :u, :banner => 'Username', :required => true
     method_option :e, :banner => 'Environment', :required => true
-    def switch
+    def set
       conf.set_current_user options[:e], options[:u]
     end
 
