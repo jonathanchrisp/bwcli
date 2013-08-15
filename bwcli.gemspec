@@ -1,6 +1,8 @@
+require File.dirname(__FILE__) + "/lib/bwcli/version"
+
 Gem::Specification.new do |s|
   s.name        = 'bwcli'
-  s.version     = '1.0.0'
+  s.version     = BWCLI::VERSION
   s.date        = '2013-08-15'
   s.summary     = 'Brandwatch CLI'
   s.description = 'A CLI interface to interact with the Brandwatch v2 API'
