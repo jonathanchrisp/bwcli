@@ -12,7 +12,7 @@ module BWCLI
     end
 
     desc "projects", "Users projects"
-    method_option :i, :banner => 'project id', :required => false
+    method_option :i, :banner => 'project id', :required => false, :type => :numeric
     def projects
       if options[:i].nil?
         ap configuration.oauth.projects
