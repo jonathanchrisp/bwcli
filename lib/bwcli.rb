@@ -1,11 +1,15 @@
 require 'thor'
+require 'hashie'
 require 'awesome_print'
+require 'bwapi'
 require 'bwcli/configuration'
 require 'bwcli/config'
 require 'bwcli/me'
 require 'bwcli/projects'
 
 module BWCLI
+
+  # BWCLI command
   class BW < Thor
 
     no_tasks do
