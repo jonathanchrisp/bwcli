@@ -1,4 +1,6 @@
 require 'yaml'
+require "openssl"
+require "digest"
 
 module BWCLI
 
@@ -23,7 +25,7 @@ module BWCLI
     def add_user env, username, pwd
       config[env] = {} unless env_exists? env
       abort "The #{username} already exists!".yellow if user_exists? env, username
-      config[env][username] = { 'access_token' => '', 'password' => pwd }
+      config[env][username] = { 'access_token' => '', 'password' => encrypt_password(username, pwd) }
       write_config
     end
 
@@ -49,7 +51,7 @@ module BWCLI
       abort "There is no access token set for the current user".yellow if config.current_user.access_token.nil?
       abort "There is no environment set for the current user".yellow if config.current_user.environment.nil?
 
-      return @bwapi ||= BWAPI::Client.new(:username => current_user.username, :password => current_user.password, :api_endpoint => api_endpoint)
+      return @bwapi ||= BWAPI::Client.new(:username => current_user.username, :password => decrypt_password(current_user.username, current_user.password), :api_endpoint => api_endpoint)
     end
 
     # Returns the config
@@ -87,10 +89,10 @@ module BWCLI
     # List all users within the config hash
     def list_users
       abort "You have no users within your config file!".yellow if config.empty?
-      puts "\nUser Configuration".yellow
+      puts "\nUser Configuration"
       config.each do |k, v|
         next if k == 'current_user'
-        puts "\nEnvironment: #{k}".yellow
+        puts "\nEnvironment: #{k}"
         print_hash_values v
       end
 
@@ -100,9 +102,13 @@ module BWCLI
     # List the current user within the config hash
     def list_current_user
       abort "You have no current user set!".yellow unless current_user_exists?
-      puts "\nCurrent User:".yellow
+      puts "\nCurrent User"
       config.current_user.each do |k,v|
-        puts "#{k.yellow}: #{v}\n" unless v.nil?
+        if k == 'password'
+          puts "#{k.yellow}: ** HIDDEN **".yellow
+        else
+          puts "#{k.yellow}: #{v}".yellow unless v.nil?
+        end
       end
     end
 
@@ -117,19 +123,6 @@ module BWCLI
       end
 
       return bwapi
-    end
-
-    # Print out hash values
-    def print_hash_values hash
-      puts hash.yellow unless hash.is_a? Hash
-      hash.each do |k, v|
-        if v.is_a? Hash
-          puts "User: #{k}:".yellow
-          print_hash_values v
-        else
-          puts " - #{k}: #{v}"
-        end
-      end
     end
 
     # Resets the config to an empty hash
@@ -182,6 +175,41 @@ module BWCLI
     # Writes the config to file
     def write_config
       File.open(@config_file, "w"){|f| YAML.dump(config, f)}
+    end
+
+    private
+
+    def encrypt_password key, pwd
+      key = Digest::SHA256.digest(key) if(key.kind_of?(String) && 32 != key.bytesize)
+      aes = OpenSSL::Cipher.new('AES-256-CBC')
+      aes.encrypt
+      aes.key = key
+      return aes.update(pwd) + aes.final
+    end
+
+    def decrypt_password key, pwd
+      key = Digest::SHA256.digest(key) if(key.kind_of?(String) && 32 != key.bytesize)
+      aes = OpenSSL::Cipher.new('AES-256-CBC')
+      aes.decrypt
+      aes.key = key
+      return aes.update(pwd) + aes.final
+    end
+
+    # Print out hash values
+    def print_hash_values hash
+      puts hash unless hash.is_a? Hash
+      hash.each do |k, v|
+        if v.is_a? Hash
+          puts "User:".yellow + " #{k}"
+          print_hash_values v
+        else
+          if k == 'password'
+            puts "#{k.yellow}: ** HIDDEN **"
+          else
+            puts "#{k.yellow}: #{v}\n" unless v.nil?
+          end
+        end
+      end
     end
 
   end
