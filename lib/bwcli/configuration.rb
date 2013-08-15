@@ -1,63 +1,16 @@
-require 'bwapi'
-require 'hashie'
 require 'yaml'
-require 'awesome_print'
 
 module BWCLI
+
+  # Configuration class to maintain config
   class Configuration
 
     # Initialises the configuration class
     def initialize
-      @config = Hashie::Mash.new(YAML.load_file File.join(File.expand_path("~"), ".bwcli"))
+      @config_file = File.join(File.expand_path("~"), ".bwcli")
+      @config = Hashie::Mash.new(YAML.load_file @config_file)
     rescue Errno::ENOENT
       abort "You dont have a .bwcli file!".red.underline
-    end
-
-    # Returns the config
-    #
-    # @return [Hash] config the current config
-    def config
-      @config
-    end
-
-    # Writes the config to file
-    def write_config
-      File.open(File.join(File.expand_path("~"), '.bwcli'), "w"){|f| YAML.dump(config, f)}
-    end
-
-    # Resets the config to an empty hash
-    def reset
-      @config = {}
-      write_config
-    end
-
-    def oauth
-      bw = BWAPI::Client.new :username => current_user.username, :password => current_user.password
-
-      if current_user.access_token.nil? || current_user.access_token.empty?
-        abort "Unable to login as #{current_user.username}".red unless bw.login
-        set_access_token bw.access_token
-      else
-        bw.access_token = current_user.access_token
-        abort "Unable to login as #{current_user.username}".red unless bw.login
-      end
-
-      return bw
-    end
-
-    # Returns the current user set in config hash
-    #
-    # @return [Hash] returns the current user
-    def current_user
-      abort "You have no current user set!".yellow unless current_user_exists?
-      config.current_user
-    end
-
-    # Display the current users access_token
-    def current_user_access_token
-      abort "You have no current user set!".yellow unless current_user_exists?
-      abort "There is no access token set for the current user".yellow if config.current_user.access_token.nil?
-      puts "access_token: #{config.current_user.access_token}".yellow
     end
 
     # Add user to the config hash
@@ -72,22 +25,61 @@ module BWCLI
       write_config
     end
 
-    # Set current user
+    # Returns the api endpoint for the current user
     #
-    # @param [String] env the environment
-    # @param [String] username the username of the user
-    def set_current_user env, username
-      abort "The #{username} doesn't exist! Please add!".yellow unless user_exists? env, username
-      config.current_user = { 'username' => username, 'environment' => env, 'password' => config[env][username].password, 'access_token' => config[env][username].access_token }
-      write_config
+    # @return [String] the api endpoint
+    def api_endpoint
+      case current_user.environment
+      when 'int', 'integration'
+        'http://newapi.int.brandwatch.com'
+      when 'rel', 'release', 'stage'
+        'http://newapi.rel.brandwatch.com'
+      else
+        'http://newapi.brandwatch.com'
+      end
     end
 
-    # Sets access token for current user
+    # Creates and returns bwapi instance
     #
-    # @param [String] token the access token to store in  config hash
-    def set_access_token token
-      current_user.access_token = token
-      write_config
+    # @return [Object] bwapi the bwapi instance
+    def bwapi
+      abort "You have no current user set!".yellow unless current_user_exists?
+      abort "There is no access token set for the current user".yellow if config.current_user.access_token.nil?
+      abort "There is no environment set for the current user".yellow if config.current_user.environment.nil?
+
+      return @bwapi ||= BWAPI::Client.new(:username => current_user.username, :password => current_user.password, :api_endpoint => api_endpoint)
+    end
+
+    # Returns the config
+    #
+    # @return [Hash] config the current config
+    def config
+      @config
+    end
+
+    # Returns the current user set in config hash
+    #
+    # @return [Hash] returns the current user
+    def current_user
+      abort "You have no current user set!".yellow unless current_user_exists?
+      config.current_user
+    end
+
+    # Check whether the current user exists in the config hash
+    #
+    # @return [Boolean]
+    def current_user_exists?
+      return false if config.current_user.nil?
+      return true
+    end
+
+    # Check whether a env exists in the config hash
+    #
+    # @param [String] env the environment
+    # @return [Boolean]
+    def env_exists? env
+      return false if config.nil?
+      config.has_key? env
     end
 
     # List all users within the config hash
@@ -112,6 +104,19 @@ module BWCLI
       end
     end
 
+    # Authenticates current user
+    def oauth
+      if current_user.access_token.nil? || current_user.access_token.empty?
+        abort "Unable to login as #{current_user.username}".red unless bwapi.login
+        set_access_token bwapi.access_token
+      else
+        bwapi.access_token = current_user.access_token
+        abort "Unable to login as #{current_user.username}".red unless bwapi.login
+      end
+
+      return bwapi
+    end
+
     # Print out hash values
     def print_hash_values hash
       puts hash.yellow unless hash.is_a? Hash
@@ -125,24 +130,41 @@ module BWCLI
       end
     end
 
-    # Remove user
+    # Resets the config to an empty hash
+    def reset
+      @config = {}
+      write_config
+    end
+
+    # Set current user
     #
     # @param [String] env the environment
     # @param [String] username the username of the user
-    def remove_user env, username
+    def set_current_user env, username
+      abort "The #{username} doesn't exist! Please add!".yellow unless user_exists? env, username
+      config.current_user = { 'username' => username, 'environment' => env, 'password' => config[env][username].password, 'access_token' => config[env][username].access_token }
+      write_config
+    end
+
+    # Sets access token for current user
+    #
+    # @param [String] token the access token to store in  config hash
+    def set_access_token token
+      current_user.access_token = token
+      config[current_user.environment].access_token = token
+      write_config
+    end
+
+    # Remove user
+    #
+    # @param [String] username the username of the user
+    # @param [String] env the environment
+    def remove_user username, env
       abort "You have no users within your config file!".yellow if config.empty?
       abort "This user is currently set as the current user! Aborting!".yellow if current_user.username == username && current_user.env == env
       abort "The #{username} doesn't exist!".yellow unless user_exists? env, username
       config[env].delete username
       write_config
-    end
-
-    # Check whether the current user exists in the config hash
-    #
-    # @return [Boolean]
-    def current_user_exists?
-      return false if config.current_user.nil?
-      return true
     end
 
     # Check whether a user exists in the config hash
@@ -151,17 +173,13 @@ module BWCLI
     # @param [String] username the username of the user
     # @return [Boolean]
     def user_exists? env, username
-      return false  if config.nil?
+      return false  if config.nil? || config.empty?
       return true   if config[env].has_key? username
     end
 
-    # Check whether a env exists in the config hash
-    #
-    # @param [String] env the environment
-    # @return [Boolean]
-    def env_exists? env
-      return false if config.nil?
-      config.has_key? env
+    # Writes the config to file
+    def write_config
+      File.open(@config_file, "w"){|f| YAML.dump(config, f)}
     end
 
   end
