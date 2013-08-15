@@ -1,8 +1,8 @@
-require 'thor'
-require 'awesome_print'
 require 'bwcli/configuration'
 
 module BWCLI
+
+  # Projects subcommand
   class Projects < Thor
 
     no_tasks do
@@ -13,15 +13,11 @@ module BWCLI
 
     desc "projects", "Users projects"
     method_option :i, :banner => 'project id', :required => false
-    method_option :p, :banner => 'parameter', :required => false
     def projects
-      if (options[:p].nil? && options[:i].nil?)
+      if options[:i].nil?
         ap configuration.oauth.projects
-      elsif options[:p].nil?
-        ap configuration.oauth.project options[:i]
       else
-        project = configuration.oauth.project options[:i]
-        ap project[options[:p]]
+        configuration.oauth.project options[:i]
       end
     end
     default_task :projects
