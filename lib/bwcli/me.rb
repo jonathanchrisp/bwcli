@@ -9,11 +9,12 @@ module BWCLI
       def configuration
         @configuration ||= BWCLI::Configuration.new
       end
+      alias :conf :configuration
     end
 
     desc "me", "Users credentials"
     def me
-      ap configuration.oauth.me
+      ap conf.oauth.me
     end
     default_task :me
 
