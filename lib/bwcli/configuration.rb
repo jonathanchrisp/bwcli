@@ -10,7 +10,9 @@ module BWCLI
       @config_file = File.join(File.expand_path("~"), ".bwcli")
       @config = Hashie::Mash.new(YAML.load_file @config_file)
     rescue Errno::ENOENT
-      abort "You dont have a .bwcli file!".red.underline
+      File.new(@config_file, "w")
+      puts "\nAs you didn't have a .bwcli file, I created one for you!\n".green
+      retry
     end
 
     # Add user to the config hash
