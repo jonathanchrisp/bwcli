@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + "/lib/bwcli/version"
 Gem::Specification.new do |s|
   s.name        = 'bwcli'
   s.version     = BWCLI::VERSION
-  s.date        = '2013-08-15'
+  s.date        = '2013-09-17'
   s.summary     = 'Brandwatch CLI'
   s.description = 'A CLI interface to interact with the Brandwatch v2 API'
   s.author      = 'Jonathan Chrisp'
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec', '~> 2.13.0'
   s.add_development_dependency 'pry', '~> 0.9.12.2'
 
-  s.add_runtime_dependency 'bwapi', '~> 1.0.0'
+  s.add_runtime_dependency 'bwapi', '~> 1.0.6'
   s.add_runtime_dependency 'thor', '~> 0.18.1'
   s.add_runtime_dependency 'awesome_print', '~> 1.1.0'
   s.add_runtime_dependency 'hashie', '~> 2.0.5'
